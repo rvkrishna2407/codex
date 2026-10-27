@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String              @id @default(uuid())
+  email              String              @unique
+  role               Role
+  leaderboards       Leaderboard[]
+  submissions        Submissions[]
+  contestSubmissions ContestSubmission[]
+}
+
+enum Role {
+  User
+  Admin
+}
+
+model Contest {
+  id                         String                      @id @default(uuid())
+  title                      String
+  description                String                      @default("")
+  startTime                  DateTime
+  endTime                    DateTime?
+  contestToChallengeMapping ContestToChallengeMapping[]
+  leaderboards               Leaderboard[]
+}
+
+model ContestToChallengeMapping {
+  id                 String              @id @default(uuid())
+  contestId          String
+  challengeId        String
+  index              Int
+  submissions        Submissions[]
+  contest            Contest             @relation(fields: [contestId], references: [id])
+  challenge          Challenge           @relation(fields: [challengeId], references: [id])
+  contestSubmissions ContestSubmission[]
+
+  @@unique([contestId, challengeId])
+}
+
+model Challenge {
+  id                         String                      @id @default(uuid())
+  title                      String
+  description                String                      @default("")
+  notionDocId                String
+  maxPoints                  Int
+  starterCode                String?
+  contestToChallengeMapping ContestToChallengeMapping[]
+}
+
+model ContestSubmission {
+  id                           String                     @id @default(uuid())
+  contestToChallengeMappingId String
+  submission                  String
+  userId                      String
+  user                        String
+  points                      Int
+  contestToChallengeMapping   ContestToChallengeMapping @relation(fields: [contestToChallengeMappingId], references: [id])
+  createdAt                   DateTime                   @default(now())
+  users                       User[]
+}
+
+model Submissions {
+  id                           String                    @id @default(uuid())
+  contestToChallengeMappingId String
+  points                      Int
+  submission                  String
+  challengeId                 String
+  userId                      String
+  createdAt                   DateTime                  @default(now())
+  users                       User[]
+  contestToChallengeMappings ContestToChallengeMapping[]
+}
+
+model Leaderboard {
+  id        String  @id @default(uuid())
+  contestId String
+  userId    String
+  rank      Int
+  contest   Contest @relation(fields: [contestId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([contestId, rank])
+}

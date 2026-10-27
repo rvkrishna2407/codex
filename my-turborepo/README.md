@@ -1,159 +1,32 @@
-# Turborepo starter
+# CodeX
 
-This Turborepo starter is maintained by the Turborepo core team.
+CodeX is a coding-contest app with an Express API, PostgreSQL/Prisma storage, and a React frontend.
 
-## Using this example
+## Run locally
 
-Run the following command:
+1. Install the workspace dependencies with `bun install`.
+2. Keep the existing `packages/db/.env` and set its `DATABASE_URL` to your PostgreSQL database. The required variable is listed in `packages/db/.env.example`.
+3. Configure the backend variables in `apps/backend/.env`. The complete key list is in `apps/backend/.env.example`; retain your existing JWT secrets and copy in the missing settings. Add the administrator email(s) to `ADMIN_EMAILS`, separated by commas.
+4. Configure `apps/frontend/.env` from `apps/frontend/.env.example` if the API is not running at `http://localhost:4000`.
+5. Apply database changes and generate Prisma Client:
 
-```sh
-npx create-turbo@latest
-```
+   ```sh
+   bun run --filter db migrate:dev
+   ```
 
-## What's inside?
+6. Start the frontend and backend from the repository root:
 
-This Turborepo includes the following packages/apps:
+   ```sh
+   bun run dev
+   ```
 
-### Apps and Packages
+   Open `http://localhost:5173`. In development, request a sign-in link from the app and click **Open sign-in link** in the sign-in dialog; the app sends its URL token to the backend for verification. Add an OpenAI-compatible API key, base URL, and model to `apps/backend/.env` to enable AI grading. Set `POSTMARK_SERVER_TOKEN` and a verified `FROM_EMAIL` to send sign-in emails through Postmark in production.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## Features
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- Email magic-link authentication, with administrator access restricted to `ADMIN_EMAILS`.
+- Admin contest publishing with scheduled start/end times and multiple challenges.
+- Contest and challenge browsing, solution submissions, AI feedback, and a leaderboard that refreshes every 15 seconds.
+- A dark, responsive interface with no password or external code-execution service.
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-bun exec turbo build
-bun exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+The grader evaluates submitted text using an OpenAI-compatible chat-completions endpoint; it does not execute untrusted code. Required secrets belong only in the ignored `.env` files should never be committed.
